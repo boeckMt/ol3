@@ -3,7 +3,7 @@
  */
 import Disposable from '../Disposable.js';
 import {VOID} from '../functions.js';
-import Event from './Event.js';
+import BaseEvent from './Event.js';
 import {clear} from '../obj.js';
 
 
@@ -94,7 +94,7 @@ class Target extends Disposable {
    * @api
    */
   dispatchEvent(event) {
-    const evt = typeof event === 'string' ? new Event(event) : event;
+    const evt = typeof event === 'string' ? new BaseEvent(event) : event;
     const type = evt.type;
     if (!evt.target) {
       evt.target = this.eventTarget_ || this;
