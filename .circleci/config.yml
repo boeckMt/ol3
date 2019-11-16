@@ -50,3 +50,12 @@ jobs:
       - store_artifacts:
           path: build/apidoc
           destination: apidoc
+
+      - run:
+          name: transpile
+          command: npm run transpile
+
+      - store_artifacts:
+          path: build/ol
+          destination: ol
+      
