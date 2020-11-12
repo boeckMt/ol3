@@ -287,14 +287,16 @@ class CanvasLayerRenderer extends LayerRenderer {
 
     const layer = this.getLayer();
     const layerExtent = layer.getExtent();
-    const renderCoordinate = applyTransform(
-      frameState.pixelToCoordinateTransform,
-      pixel.slice()
-    );
+    if (layerExtent) {
+      const renderCoordinate = applyTransform(
+        frameState.pixelToCoordinateTransform,
+        pixel.slice()
+      );
 
-    /** get only data inside of the layer extent */
-    if (!containsXY(layerExtent, renderCoordinate[0], renderCoordinate[1])) {
-      return null;
+      /** get only data inside of the layer extent */
+      if (!containsXY(layerExtent, renderCoordinate[0], renderCoordinate[1])) {
+        return null;
+      }
     }
 
     let data;
