@@ -67,9 +67,9 @@ describe('ol.renderer.canvas.ImageLayer', function () {
   });
 
   describe('#forEachLayerAtPixel Image CORS', function () {
-    let map, target, imageExtent;
+    let map, target, imageExtent, projection;
     beforeEach(function () {
-      const projection = new Projection({
+      projection = new Projection({
         code: 'custom-image',
         units: 'pixels',
         extent: [0, 0, 200, 200],
@@ -106,7 +106,7 @@ describe('ol.renderer.canvas.ImageLayer', function () {
       const source = new Static({
         url: `https://openlayers.org/assets/theme/img/logo70.png`,
         projection: projection,
-        imageExtent: imageExtent
+        imageExtent: imageExtent,
       });
       const imageLayer = new ImageLayer({
         source: source,
@@ -136,7 +136,7 @@ describe('ol.renderer.canvas.ImageLayer', function () {
         url: `https://openlayers.org/assets/theme/img/logo70.png`,
         projection: projection,
         imageExtent: imageExtent,
-        crossOrigin: 'anonymous'
+        crossOrigin: 'anonymous',
       });
       const imageLayer = new ImageLayer({
         source: source,
