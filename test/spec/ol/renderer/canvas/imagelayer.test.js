@@ -66,6 +66,97 @@ describe('ol.renderer.canvas.ImageLayer', function () {
     });
   });
 
+  describe('#forEachLayerAtPixel Image CORS', function () {
+    let map, target, imageExtent;
+    beforeEach(function () {
+      const projection = new Projection({
+        code: 'custom-image',
+        units: 'pixels',
+        extent: [0, 0, 200, 200],
+      });
+      target = document.createElement('div');
+      target.style.width = '100px';
+      target.style.height = '100px';
+      document.body.appendChild(target);
+      imageExtent = [0, 0, 20, 20];
+      map = new Map({
+        pixelRatio: 1,
+        target: target,
+        layers: [],
+        view: new View({
+          projection: projection,
+          center: [10, 10],
+          zoom: 1,
+          maxZoom: 8,
+        }),
+      });
+    });
+
+    afterEach(function () {
+      map.setTarget(null);
+      document.body.removeChild(target);
+    });
+
+    it('should detect pixels outside of the layer extent because crossOrigin is not set', function (done) {
+      let has = false;
+      function hasLayer() {
+        has = true;
+      }
+
+      const source = new Static({
+        url: `https://openlayers.org/assets/theme/img/logo70.png`,
+        projection: projection,
+        imageExtent: imageExtent
+      });
+      const imageLayer = new ImageLayer({
+        source: source,
+        extent: imageExtent,
+      });
+
+      source.on('imageloadend', function () {
+        map.forEachLayerAtPixel([50, 50], hasLayer);
+        expect(has).to.be(true);
+        has = false;
+        map.forEachLayerAtPixel([10, 10], hasLayer);
+        expect(has).to.be(true);
+        done();
+      });
+
+      map.addLayer(imageLayer);
+      map.renderSync();
+    });
+
+    it('should not detect pixels outside of the layer extent with crossOrigin set', function (done) {
+      let has = false;
+      function hasLayer() {
+        has = true;
+      }
+
+      const source = new Static({
+        url: `https://openlayers.org/assets/theme/img/logo70.png`,
+        projection: projection,
+        imageExtent: imageExtent,
+        crossOrigin: 'anonymous'
+      });
+      const imageLayer = new ImageLayer({
+        source: source,
+        extent: imageExtent,
+      });
+
+      source.on('imageloadend', function () {
+        map.forEachLayerAtPixel([50, 50], hasLayer);
+        expect(has).to.be(true);
+        has = false;
+        map.forEachLayerAtPixel([10, 10], hasLayer);
+        expect(has).to.be(false);
+        done();
+      });
+
+      map.addLayer(imageLayer);
+      map.renderSync();
+    });
+  });
+
   describe('Image rendering', function () {
     let map, div, layer;
 
