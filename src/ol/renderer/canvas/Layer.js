@@ -11,7 +11,7 @@ import {
 } from '../../transform.js';
 import {createCanvasContext2D} from '../../dom.js';
 import {
-  containsXY,
+  containsCoordinate,
   getBottomLeft,
   getBottomRight,
   getTopLeft,
@@ -294,7 +294,7 @@ class CanvasLayerRenderer extends LayerRenderer {
       );
 
       /** get only data inside of the layer extent */
-      if (!containsXY(layerExtent, renderCoordinate[0], renderCoordinate[1])) {
+      if (!containsCoordinate(layerExtent, renderCoordinate)) {
         return null;
       }
     }
