@@ -9,7 +9,6 @@ import {
   compose as composeTransform,
   create as createTransform,
 } from '../../transform.js';
-import {createCanvasContext2D} from '../../dom.js';
 import {
   containsCoordinate,
   getBottomLeft,
@@ -17,6 +16,7 @@ import {
   getTopLeft,
   getTopRight,
 } from '../../extent.js';
+import {createCanvasContext2D} from '../../dom.js';
 import {rotateAtOffset} from '../../render/canvas.js';
 
 /**
