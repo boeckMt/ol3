@@ -66,17 +66,10 @@ describe('ol.renderer.canvas.ImageLayer', function () {
     });
   });
 
-  describe('#forEachLayerAtPixel Image CORS', function () {
-    let map,
-      target,
-      imageExtent,
-      projection,
-      sourceCross,
-      source,
-      imageLayer,
-      imageLayerCross;
+  describe('#getDataAtPixel', function () {
+    let map, target, source, imageLayer, imageExtent;
     beforeEach(function (done) {
-      projection = new Projection({
+      const projection = new Projection({
         code: 'custom-image',
         units: 'pixels',
         extent: [0, 0, 200, 200],
@@ -85,30 +78,19 @@ describe('ol.renderer.canvas.ImageLayer', function () {
       target.style.width = '100px';
       target.style.height = '100px';
       document.body.appendChild(target);
-      imageExtent = [0, 0, 20, 20];
       source = new Static({
-        url: `https://openlayers.org/assets/theme/img/logo70.png`,
+        url: 'spec/ol/data/dot.png',
         projection: projection,
-        imageExtent: imageExtent,
+        imageExtent: [0, 0, 20, 20],
       });
       imageLayer = new ImageLayer({
         source: source,
         extent: imageExtent,
       });
-      sourceCross = new Static({
-        url: `https://openlayers.org/assets/theme/img/logo70.png`,
-        projection: projection,
-        imageExtent: imageExtent,
-        crossOrigin: 'anonymous',
-      });
-      imageLayerCross = new ImageLayer({
-        source: sourceCross,
-        extent: imageExtent,
-      });
       map = new Map({
         pixelRatio: 1,
         target: target,
-        layers: [imageLayer, imageLayerCross],
+        layers: [],
         view: new View({
           projection: projection,
           center: [10, 10],
@@ -116,21 +98,10 @@ describe('ol.renderer.canvas.ImageLayer', function () {
           maxZoom: 8,
         }),
       });
-      const p1 = new Promise(function (resolve, reject) {
-        source.on('imageloadend', function () {
-          resolve();
-        });
-      });
-
-      const p2 = new Promise(function (resolve, reject) {
-        sourceCross.on('imageloadend', function () {
-          resolve();
-        });
-      });
-
-      Promise.all([p1, p2]).then((values) => {
+      source.on('imageloadend', function () {
         done();
       });
+      setTimeout(done, 2000);
     });
 
     afterEach(function () {
@@ -138,34 +109,32 @@ describe('ol.renderer.canvas.ImageLayer', function () {
       document.body.removeChild(target);
     });
 
-    it('should detect pixels outside of the layer extent because crossOrigin is not set', function () {
-      imageLayerCross.setVisible(false);
-      imageLayer.setVisible(true);
+    it('should not detect pixels outside of the layer extent', function () {
       map.renderSync();
-      let has = false;
-      function hasLayer() {
-        has = true;
-      }
-      map.forEachLayerAtPixel([50, 50], hasLayer);
-      expect(has).to.be(true);
-      has = false;
-      map.forEachLayerAtPixel([10, 10], hasLayer);
-      expect(has).to.be(true);
+      const pixel = [10, 10];
+      const frameState = map.frameState_;
+      const hitTolerance = 0;
+      const layerRenderer = imageLayer.getRenderer();
+      const data = layerRenderer.getDataAtPixel(
+        pixel,
+        frameState,
+        hitTolerance
+      );
+      expect(data).to.be(null);
     });
 
-    it('should not detect pixels outside of the layer extent with crossOrigin set', function () {
-      imageLayerCross.setVisible(true);
-      imageLayer.setVisible(false);
+    it('should detect pixels in the layer extent', function () {
       map.renderSync();
-      let has = false;
-      function hasLayer() {
-        has = true;
-      }
-      map.forEachLayerAtPixel([50, 50], hasLayer);
-      expect(has).to.be(true);
-      has = false;
-      map.forEachLayerAtPixel([10, 10], hasLayer);
-      expect(has).to.be(false);
+      const pixel = [50, 50];
+      const frameState = map.frameState_;
+      const hitTolerance = 0;
+      const layerRenderer = imageLayer.getRenderer();
+      const data = layerRenderer.getDataAtPixel(
+        pixel,
+        frameState,
+        hitTolerance
+      );
+      expect(data.length > 0).to.be(true);
     });
   });
 
