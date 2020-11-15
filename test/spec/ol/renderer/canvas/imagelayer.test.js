@@ -67,6 +67,103 @@ describe('ol.renderer.canvas.ImageLayer', function () {
     });
   });
 
+  describe('#forEachLayerAtPixel Image CORS', function () {
+    let map,
+      target,
+      imageExtent,
+      projection,
+      sourceCross,
+      source,
+      imageLayer,
+      imageLayerCross;
+    beforeEach(function (done) {
+      projection = new Projection({
+        code: 'custom-image',
+        units: 'pixels',
+        extent: [0, 0, 200, 200],
+      });
+      target = document.createElement('div');
+      target.style.width = '100px';
+      target.style.height = '100px';
+      document.body.appendChild(target);
+      imageExtent = [0, 0, 20, 20];
+      source = new Static({
+        url: `https://openlayers.org/assets/theme/img/logo70.png`,
+        projection: projection,
+        imageExtent: imageExtent,
+      });
+      imageLayer = new ImageLayer({
+        source: source,
+        extent: imageExtent,
+      });
+      sourceCross = new Static({
+        url: `https://openlayers.org/assets/theme/img/logo70.png`,
+        projection: projection,
+        imageExtent: imageExtent,
+        crossOrigin: 'anonymous',
+      });
+      imageLayerCross = new ImageLayer({
+        source: sourceCross,
+        extent: imageExtent,
+      });
+      map = new Map({
+        pixelRatio: 1,
+        target: target,
+        layers: [imageLayer, imageLayerCross],
+        view: new View({
+          projection: projection,
+          center: [10, 10],
+          zoom: 1,
+          maxZoom: 8,
+        }),
+      });
+      let loadedCount = 0;
+      [source, sourceCross].forEach(function (source) {
+        source.once('imageloadend', function () {
+          loadedCount++;
+          if (loadedCount === 2) {
+            done();
+          }
+        });
+      });
+    });
+
+    afterEach(function () {
+      map.setTarget(null);
+      document.body.removeChild(target);
+    });
+
+    it('should detect pixels outside of the layer extent because crossOrigin is not set', function () {
+      imageLayerCross.setVisible(false);
+      imageLayer.setVisible(true);
+      map.renderSync();
+      let has = false;
+      function hasLayer() {
+        has = true;
+      }
+      map.forEachLayerAtPixel([50, 50], hasLayer);
+      expect(has).to.be(true);
+      has = false;
+      map.forEachLayerAtPixel([10, 10], hasLayer);
+      expect(has).to.be(true);
+    });
+
+    it('should not detect pixels outside of the layer extent with crossOrigin set', function () {
+      imageLayerCross.setVisible(true);
+      imageLayer.setVisible(false);
+      map.renderSync();
+      let has = false;
+      function hasLayer() {
+        has = true;
+      }
+      map.forEachLayerAtPixel([50, 50], hasLayer);
+      expect(has).to.be(true);
+      has = false;
+      map.forEachLayerAtPixel([10, 10], hasLayer);
+      expect(has).to.be(false);
+    });
+  });
+
   describe('#getDataAtPixel', function () {
     let map, target, source, imageLayer, imageExtent;
     beforeEach(function (done) {
