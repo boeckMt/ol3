@@ -143,8 +143,7 @@ describe('ol.renderer.canvas.ImageLayer', function () {
       imageLayer.setVisible(true);
       map.renderSync();
       let has = false;
-      function hasLayer(layer) {
-        console.log(layer);
+      function hasLayer() {
         has = true;
       }
       map.forEachLayerAtPixel([50, 50], hasLayer);
@@ -159,8 +158,7 @@ describe('ol.renderer.canvas.ImageLayer', function () {
       imageLayer.setVisible(false);
       map.renderSync();
       let has = false;
-      function hasLayer(layer) {
-        console.log(layer);
+      function hasLayer() {
         has = true;
       }
       map.forEachLayerAtPixel([50, 50], hasLayer);
