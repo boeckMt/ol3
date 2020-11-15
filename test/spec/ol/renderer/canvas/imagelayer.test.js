@@ -116,7 +116,19 @@ describe('ol.renderer.canvas.ImageLayer', function () {
           maxZoom: 8,
         }),
       });
-      source.on('imageloadend', function () {
+      const p1 = new Promise(function (resolve, reject) {
+        source.on('imageloadend', function () {
+          resolve();
+        });
+      });
+
+      const p2 = new Promise(function (resolve, reject) {
+        sourceCross.on('imageloadend', function () {
+          resolve();
+        });
+      });
+
+      Promise.all([p1, p2]).then((values) => {
         done();
       });
     });
@@ -131,7 +143,8 @@ describe('ol.renderer.canvas.ImageLayer', function () {
       imageLayer.setVisible(true);
       map.renderSync();
       let has = false;
-      function hasLayer() {
+      function hasLayer(layer) {
+        console.log(layer);
         has = true;
       }
       map.forEachLayerAtPixel([50, 50], hasLayer);
@@ -146,7 +159,8 @@ describe('ol.renderer.canvas.ImageLayer', function () {
       imageLayer.setVisible(false);
       map.renderSync();
       let has = false;
-      function hasLayer() {
+      function hasLayer(layer) {
+        console.log(layer);
         has = true;
       }
       map.forEachLayerAtPixel([50, 50], hasLayer);
