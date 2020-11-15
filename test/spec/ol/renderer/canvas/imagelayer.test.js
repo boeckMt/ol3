@@ -198,7 +198,6 @@ describe('ol.renderer.canvas.ImageLayer', function () {
       source.on('imageloadend', function () {
         done();
       });
-      setTimeout(done, 2000);
     });
 
     afterEach(function () {
@@ -220,7 +219,7 @@ describe('ol.renderer.canvas.ImageLayer', function () {
       expect(data).to.be(null);
     });
 
-    /* it('should detect pixels in the layer extent', function () {
+    it('should detect pixels in the layer extent', function () {
       map.renderSync();
       const pixel = [50, 50];
       const frameState = map.frameState_;
@@ -232,7 +231,7 @@ describe('ol.renderer.canvas.ImageLayer', function () {
         hitTolerance
       );
       expect(data.length > 0).to.be(true);
-    }); */
+    });
   });
 
   describe('Image rendering', function () {
