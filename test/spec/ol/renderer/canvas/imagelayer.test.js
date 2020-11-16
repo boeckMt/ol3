@@ -178,7 +178,7 @@ describe('ol.renderer.canvas.ImageLayer', function () {
   });
 
   describe('#getDataAtPixel', function () {
-    let map, target, source, imageLayer, imageExtent;
+    let map, target, source, imageLayer;
     beforeEach(function (done) {
       const projection = new Projection({
         code: 'custom-image',
@@ -189,7 +189,7 @@ describe('ol.renderer.canvas.ImageLayer', function () {
       target.style.width = '100px';
       target.style.height = '100px';
       document.body.appendChild(target);
-      imageExtent = [0, 0, 20, 20];
+      const imageExtent = [0, 0, 20, 20];
       source = new Static({
         url: 'spec/ol/data/dot.png',
         projection: projection,
@@ -202,7 +202,7 @@ describe('ol.renderer.canvas.ImageLayer', function () {
       map = new Map({
         pixelRatio: 1,
         target: target,
-        layers: [],
+        layers: [imageLayer],
         view: new View({
           projection: projection,
           center: [10, 10],
