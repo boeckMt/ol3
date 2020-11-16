@@ -93,7 +93,6 @@ describe('ol.renderer.canvas.ImageLayer', function () {
       });
       imageLayer = new ImageLayer({
         source: source,
-        extent: imageExtent,
       });
       sourceCross = new Static({
         url: `https://openlayers.org/assets/theme/img/logo70.png`,
@@ -103,7 +102,6 @@ describe('ol.renderer.canvas.ImageLayer', function () {
       });
       imageLayerCross = new ImageLayer({
         source: sourceCross,
-        extent: imageExtent,
       });
       map = new Map({
         pixelRatio: 1,
@@ -132,7 +130,7 @@ describe('ol.renderer.canvas.ImageLayer', function () {
       document.body.removeChild(target);
     });
 
-    it('should detect pixels outside of the layer extent because crossOrigin is not set', function () {
+    it('should detect pixels even if there is no color because neither crossOrigin or extent is set', function () {
       imageLayerCross.setVisible(false);
       imageLayer.setVisible(true);
       map.renderSync();
@@ -161,6 +159,22 @@ describe('ol.renderer.canvas.ImageLayer', function () {
       map.forEachLayerAtPixel([10, 10], hasLayer);
       expect(has).to.be(false);
     });
+
+    it('should not detect pixels outside of the layer extent with extent set', function () {
+      imageLayerCross.setVisible(true);
+      imageLayerCross.setExtent(imageExtent);
+      imageLayer.setVisible(false);
+      map.renderSync();
+      let has = false;
+      function hasLayer() {
+        has = true;
+      }
+      map.forEachLayerAtPixel([50, 50], hasLayer);
+      expect(has).to.be(true);
+      has = false;
+      map.forEachLayerAtPixel([10, 10], hasLayer);
+      expect(has).to.be(false);
+    });
   });
 
   describe('#getDataAtPixel', function () {
@@ -175,10 +189,11 @@ describe('ol.renderer.canvas.ImageLayer', function () {
       target.style.width = '100px';
       target.style.height = '100px';
       document.body.appendChild(target);
+      imageExtent = [0, 0, 20, 20];
       source = new Static({
         url: 'spec/ol/data/dot.png',
         projection: projection,
-        imageExtent: [0, 0, 20, 20],
+        imageExtent: imageExtent,
       });
       imageLayer = new ImageLayer({
         source: source,
